@@ -1,7 +1,7 @@
 # Interviews: AI-Powered Qualitative Research with Artificial Personas
 
 Welcome to the **Interviews** project! This repository features a cutting-edge application of generative AI, enabling you to conduct large-scale qualitative interviews using AI-generated artificial personas. This tool provides rich, diverse insights from simulated interviewees, making it an invaluable resource for academic research, product testing, and training simulations.
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/yourusername/interviews/blob/main/notebook.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mwtuni/interviews/blob/main/notebook.ipynb)
 
 ## 🎓 Academic Potential of the Interviews Project
 
