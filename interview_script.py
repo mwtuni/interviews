@@ -2,12 +2,6 @@ import os
 import openai
 import ollama
 
-# Initialize OpenAI client if API key is available
-api_key = os.getenv("OPENAI_API_KEY")
-client = None
-if api_key:
-    client = openai.OpenAI(api_key=api_key)
-
 # Function to read the contents of a text file
 def read_file(file_path):
     try:
@@ -19,7 +13,7 @@ def read_file(file_path):
         raise RuntimeError(f"An error occurred while reading {file_path}: {e}")
 
 # Unified function to interpret prompt using either OpenAI GPT or Ollama Llama 3.2
-def generate_response(model, system_prompt, user_prompt):
+def generate_response(client, model, system_prompt, user_prompt):
     try:
         if model == "openai" and client:
             response = client.chat.completions.create(
@@ -29,10 +23,9 @@ def generate_response(model, system_prompt, user_prompt):
                     {"role": "user", "content": user_prompt},
                 ]
             )
-            # Correct way to access the first choice's message content
             return response.choices[0].message.content
 
-        elif model == "ollama" or not client:
+        elif model == "ollama":
             chat_completion = ollama.chat(
                 model="llama3.2",
                 messages=[
@@ -68,36 +61,33 @@ def run_interviews(num_interviews=10, preferred_model="openai"):
         print(f"An error occurred while reading files: {e}")
         return
 
+    # Initialize OpenAI client if the preferred model is OpenAI and the API key exists
+    client = None
+    if preferred_model == "openai" and os.getenv("OPENAI_API_KEY"):
+        client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    else:
+        preferred_model = "ollama"  # fallback to Ollama if OpenAI API key is not present
+
     # Define the system prompt
     system_prompt = f"""
-    You are simulating an artificial persona who has been asked to provide feedback on a new product: Jack Sparrow's Chocolate YarrBar.
-    Below is the product description:
-
+    You will take on a **random persona** with specific attributes like age (4-99), gender, occupation, and background. Once the persona is assigned, you must remain in character throughout the session. Do not switch personas or perspectives midway.
+    You have just tried a news product:
     {product_description_text}
-
-    You will be asked the following interview questions about this product:
-
-    {questions_text}
-
-    Your role is to answer each question as if you were a customer who has tried the product. Please be detailed, honest, and ensure your responses align with the character and demographics you are assigned later.
+    You are tasked with providing detailed feedback on this product, answering numbered interview questions, one by one, based on your experience. 
+    Your feedback should reflect how the assigned persona would react to the product. Be honest, detailed, and stay consistent in tone, voice, and experience.
     """
 
     # Define the user prompt
-    user_prompt = """
-    You will assume the role of different artificial personas who will answer the interview questions provided.
-    Each persona should have a unique age, gender, occupation, and background. For each question, please answer in the tone and perspective of that persona.
-    Try to include a diverse range of personas (e.g., young adult, middle-aged professional, retiree, student, etc.) in your responses.
-    Provide answers as if you genuinely experienced the product.
+    user_prompt = f"""
+    Please answer the questions in detail:
+    {questions_text}
     """
 
-    # If OpenAI API key is missing, fallback to Ollama
-    model_to_use = preferred_model if client else "ollama"
-
     for i in range(1, num_interviews + 1):
-        print(f"Generating response {i} with model {model_to_use}...")
-        response_text = generate_response(model_to_use, system_prompt, user_prompt)
+        print(f"Generating response {i} with model {preferred_model}...")
+        response_text = generate_response(client, preferred_model, system_prompt, user_prompt)
         if response_text:
-            save_response(response_text, i, model_to_use)
+            save_response(response_text, i, preferred_model)
         else:
             print(f"Failed to generate response {i}")
         print(f"Completed response {i}")
