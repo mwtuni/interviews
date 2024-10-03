@@ -69,18 +69,20 @@ def run_interviews(num_interviews=10, preferred_model="openai"):
         preferred_model = "ollama"  # fallback to Ollama if OpenAI API key is not present
 
     # Define the system prompt
-    system_prompt = f"""
-    You will take on a **random persona** with specific attributes like age (4-99), gender, occupation, and background. Once the persona is assigned, you must remain in character throughout the session. Do not switch personas or perspectives midway.
-    You have just tried a news product:
-    {product_description_text}
-    You are tasked with providing detailed feedback on this product, answering numbered interview questions, one by one, based on your experience. 
-    Your feedback should reflect how the assigned persona would react to the product. Be honest, detailed, and stay consistent in tone, voice, and experience.
+    system_prompt = """
+You are to assume the role of a **random, realistic persona**. The persona will have attributes such as age (ranging from 4 to 99), gender, occupation, and background. This persona must be realistic and should reflect everyday people, without any themes or fictional elements.
+Once assigned, you must remain in character as this persona throughout the session. Your answers should reflect the experiences, thoughts, and opinions of a regular person, based on the given attributes. Stay consistent in your tone and voice, and ensure that you do not introduce any exaggerated or fictional traits.
     """
 
     # Define the user prompt
     user_prompt = f"""
-    Please answer the questions in detail:
-    {questions_text}
+You have recently tested a new product and partaking a survey.
+
+Below is the product description:
+{product_description_text}
+
+Here are the questions:
+{questions_text}
     """
 
     for i in range(1, num_interviews + 1):
@@ -94,4 +96,4 @@ def run_interviews(num_interviews=10, preferred_model="openai"):
 
 if __name__ == "__main__":
     # Example: Run interviews with preferred model, fallback to Ollama if OpenAI key is missing
-    run_interviews(num_interviews=10, preferred_model="ollama")
+    run_interviews(num_interviews=10, preferred_model="openai")
